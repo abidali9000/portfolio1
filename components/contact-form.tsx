@@ -51,7 +51,7 @@ export function ContactForm() {
       <div className="grid md:grid-cols-2 gap-6">
         <div className="space-y-2">
           <Label htmlFor="name">Full Name *</Label>
-          <Input id="name" name="name" placeholder="Your full name" required className="bg-white" />
+          <Input id="name" name="name" placeholder="Your full name" required />
         </div>
         <div className="space-y-2">
           <Label htmlFor="email">Email Address *</Label>
@@ -61,7 +61,6 @@ export function ContactForm() {
             type="email"
             placeholder="your.email@example.com"
             required
-            className="bg-white"
           />
         </div>
       </div>
@@ -69,12 +68,12 @@ export function ContactForm() {
       <div className="grid md:grid-cols-2 gap-6">
         <div className="space-y-2">
           <Label htmlFor="company">Company/Organization</Label>
-          <Input id="company" name="company" placeholder="Your company name (optional)" className="bg-white" />
+          <Input id="company" name="company" placeholder="Your company name (optional)" />
         </div>
         <div className="space-y-2">
           <Label htmlFor="budget">Project Budget</Label>
           <Select name="budget">
-            <SelectTrigger className="bg-white">
+            <SelectTrigger>
               <SelectValue placeholder="Select budget range" />
             </SelectTrigger>
             <SelectContent>
@@ -92,7 +91,7 @@ export function ContactForm() {
       <div className="space-y-2">
         <Label htmlFor="service">Service Needed *</Label>
         <Select name="service" required>
-          <SelectTrigger className="bg-white">
+          <SelectTrigger>
             <SelectValue placeholder="Select the service you need" />
           </SelectTrigger>
           <SelectContent>
@@ -109,7 +108,7 @@ export function ContactForm() {
       <div className="space-y-2">
         <Label htmlFor="timeline">Project Timeline</Label>
         <Select name="timeline">
-          <SelectTrigger className="bg-white">
+          <SelectTrigger>
             <SelectValue placeholder="When do you need this completed?" />
           </SelectTrigger>
           <SelectContent>
@@ -130,7 +129,7 @@ export function ContactForm() {
           placeholder="Please describe your project requirements, goals, and any specific features you need..."
           rows={6}
           required
-          className="bg-white resize-none"
+          className="resize-none"
         />
       </div>
 
@@ -138,7 +137,7 @@ export function ContactForm() {
         type="submit"
         size="lg"
         disabled={isSubmitting}
-        className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-6"
+        className="w-full rounded-full text-base py-6"
       >
         {isSubmitting ? (
           <>
@@ -153,7 +152,7 @@ export function ContactForm() {
         )}
       </Button>
 
-      <p className="text-sm text-slate-600 text-center">
+      <p className="text-sm text-muted-foreground text-center">
         By submitting this form, you agree to be contacted regarding your project inquiry.
       </p>
     </form>

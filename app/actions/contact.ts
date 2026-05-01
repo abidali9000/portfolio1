@@ -1,5 +1,8 @@
 "use server"
 
+import { createServerSupabase, createServiceSupabase } from "@/lib/supabase/server"
+import { env, isSupabaseConfigured } from "@/lib/env"
+
 interface ContactFormData {
   name: string
   email: string
@@ -13,63 +16,73 @@ interface ContactFormData {
 export async function submitContactForm(formData: FormData) {
   try {
     const data: ContactFormData = {
-      name: formData.get("name") as string,
-      email: formData.get("email") as string,
-      company: (formData.get("company") as string) || undefined,
-      budget: (formData.get("budget") as string) || undefined,
-      service: formData.get("service") as string,
-      timeline: (formData.get("timeline") as string) || undefined,
-      message: formData.get("message") as string,
+      name: (formData.get("name") as string)?.trim(),
+      email: (formData.get("email") as string)?.trim(),
+      company: ((formData.get("company") as string) || "").trim() || undefined,
+      budget: ((formData.get("budget") as string) || "").trim() || undefined,
+      service: (formData.get("service") as string)?.trim(),
+      timeline: ((formData.get("timeline") as string) || "").trim() || undefined,
+      message: (formData.get("message") as string)?.trim(),
     }
 
-    // Validate required fields
     if (!data.name || !data.email || !data.service || !data.message) {
       return { success: false, error: "Please fill in all required fields." }
     }
 
-    // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(data.email)) {
       return { success: false, error: "Please enter a valid email address." }
     }
 
-    // Create email content
-    const emailContent = `
-New Contact Form Submission from Abid Ali Portfolio
+    // Persist to Supabase as a new lead (best-effort).
+    if (isSupabaseConfigured) {
+      try {
+        const client = createServiceSupabase() ?? (await createServerSupabase())
+        await client.from("leads").insert({
+          name: data.name,
+          email: data.email,
+          company: data.company ?? null,
+          budget: data.budget ?? null,
+          service: data.service,
+          timeline: data.timeline ?? null,
+          message: data.message,
+        })
+      } catch (e) {
+        console.error("[contact] failed to persist lead:", e)
+      }
+    }
 
-Contact Information:
-- Name: ${data.name}
-- Email: ${data.email}
-- Company: ${data.company || "Not provided"}
+    // Forward to email API (best-effort).
+    const emailContent = `New contact form submission
 
-Project Details:
-- Service Needed: ${data.service}
-- Budget: ${data.budget || "Not specified"}
-- Timeline: ${data.timeline || "Not specified"}
+Name: ${data.name}
+Email: ${data.email}
+Company: ${data.company ?? "—"}
+
+Service: ${data.service}
+Budget: ${data.budget ?? "—"}
+Timeline: ${data.timeline ?? "—"}
 
 Message:
 ${data.message}
 
----
-This message was sent from the contact form on abidali.vip
-Contact Phone: +39 3927035373
-Submitted at: ${new Date().toLocaleString("en-US", { timeZone: "Europe/Rome" })} (Italy Time)
-    `.trim()
+—
+Submitted: ${new Date().toISOString()}
+`
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/send-email`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        to: "admin@abidali.vip",
-        subject: `New Contact Form Submission from ${data.name}`,
-        text: emailContent,
-        replyTo: data.email,
-      }),
-    })
-
-    if (!response.ok) {
-      console.error("Failed to send email via API")
-      // Still return success to user, but log the issue
+    try {
+      await fetch(`${env.siteUrl}/api/send-email`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          to: env.contactToEmail,
+          subject: `New project inquiry from ${data.name}`,
+          text: emailContent,
+          replyTo: data.email,
+        }),
+      })
+    } catch (e) {
+      console.warn("[contact] email forward failed:", e)
     }
 
     return { success: true }

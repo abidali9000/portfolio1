@@ -25,9 +25,9 @@ export async function POST(request: NextRequest) {
             New Contact Form Submission
           </h2>
           <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            ${text
+            ${(text as string)
               .split("\n")
-              .map((line) => `<p style="margin: 8px 0;">${line}</p>`)
+              .map((line: string) => `<p style="margin: 8px 0;">${line}</p>`)
               .join("")}
           </div>
           <p style="color: #64748b; font-size: 14px; margin-top: 30px;">

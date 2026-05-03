@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
 import { Button } from "@/components/ui/button"
+import { ImageInput } from "@/components/admin/image-input"
 import { getSiteSettings } from "@/lib/cms/queries"
 import { updateSiteSettingsAction } from "@/app/admin/(panel)/actions"
 
@@ -65,9 +66,14 @@ export default async function AdminSettingsPage() {
 
         <Card>
           <CardContent className="p-5 grid gap-4 md:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="avatar_url">Avatar / hero image URL</Label>
-              <Input id="avatar_url" name="avatar_url" defaultValue={s.avatar_url ?? ""} />
+            <div className="md:col-span-2">
+              <ImageInput
+                name="avatar_url"
+                label="Avatar / hero image"
+                aspect="portrait"
+                defaultValue={s.avatar_url ?? ""}
+                hint="Displayed in the hero on the home page and on /about."
+              />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="resume_url">Resume / CV URL</Label>

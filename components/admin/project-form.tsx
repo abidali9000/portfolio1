@@ -8,6 +8,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Card, CardContent } from "@/components/ui/card"
+import { ImageInput } from "@/components/admin/image-input"
+import { GalleryInput } from "@/components/admin/gallery-input"
 import type { Project } from "@/lib/supabase/types"
 
 function SubmitButton({ label }: { label: string }) {
@@ -28,7 +30,6 @@ export function ProjectForm({
   action: (formData: FormData) => void | Promise<void>
   submitLabel?: string
 }) {
-  const galleryString = (project?.gallery ?? []).join("\n")
   const techString = (project?.tech_stack ?? []).join(", ")
   const metricsString = Object.entries((project?.metrics ?? {}) as Record<string, string>)
     .map(([k, v]) => `${k}: ${v}`)
@@ -73,15 +74,15 @@ export function ProjectForm({
 
         <div className="space-y-4">
           <Card>
-            <CardContent className="p-5 space-y-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="cover_image">Cover image URL</Label>
-                <Input id="cover_image" name="cover_image" defaultValue={project?.cover_image ?? ""} placeholder="/images/foo.png or https://…" />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="gallery">Gallery (one URL per line)</Label>
-                <Textarea id="gallery" name="gallery" rows={4} defaultValue={galleryString} />
-              </div>
+            <CardContent className="p-5 space-y-5">
+              <ImageInput
+                name="cover_image"
+                label="Cover image"
+                defaultValue={project?.cover_image ?? ""}
+                aspect="video"
+                hint="Used as the project's hero on its detail page and on the home/projects grid."
+              />
+              <GalleryInput defaultValue={project?.gallery ?? []} />
               <div className="space-y-1.5">
                 <Label htmlFor="tech_stack">Tech stack (comma-separated)</Label>
                 <Input id="tech_stack" name="tech_stack" defaultValue={techString} placeholder="Next.js, Stripe, Supabase" />

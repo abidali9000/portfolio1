@@ -109,38 +109,42 @@ export function HeroSection({
 
           <Reveal delay={0.15} className="relative mx-auto w-full max-w-md">
             {/* Decorative card */}
-            <div className="absolute -inset-6 rounded-[2rem] bg-gradient-to-tr from-blue-500/30 via-cyan-400/30 to-fuchsia-400/30 blur-2xl opacity-70 dark:opacity-50" />
+            <div className="pointer-events-none absolute -inset-6 rounded-[2rem] bg-gradient-to-tr from-blue-500/30 via-cyan-400/30 to-fuchsia-400/30 blur-2xl opacity-70 dark:opacity-50" />
+
+            {/* Image lives in its own overflow-hidden container so the rounded
+                corners clip cleanly… */}
             <div className="relative aspect-[4/5] overflow-hidden rounded-[1.5rem] border border-border bg-card shadow-2xl">
-              {settings.avatar_url && (
-                <Image
-                  src={settings.avatar_url}
-                  alt={settings.brand_name}
-                  fill
-                  className="object-cover"
-                  priority
-                  sizes="(max-width: 768px) 100vw, 480px"
-                />
-              )}
-              {/* Floating UI badges */}
-              <div className="pointer-events-none absolute -left-4 top-12 hidden md:block">
-                <div className="rounded-xl border border-border bg-background/90 backdrop-blur px-3 py-2 shadow-lg animate-float">
-                  <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Avg rating</div>
-                  <div className="font-serif text-2xl font-bold">5.0 ★</div>
-                </div>
+              <Image
+                src={settings.avatar_url || "/images/abid-formal.jpg"}
+                alt={settings.brand_name}
+                fill
+                className="object-cover"
+                priority
+                sizes="(max-width: 768px) 100vw, 480px"
+                unoptimized
+              />
+            </div>
+
+            {/* …but the floating badges are siblings, so they aren't clipped
+                by the overflow-hidden above. */}
+            <div className="pointer-events-none absolute -left-4 top-12 hidden md:block z-10">
+              <div className="rounded-xl border border-border bg-background/90 backdrop-blur px-3 py-2 shadow-lg animate-float">
+                <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Avg rating</div>
+                <div className="font-serif text-2xl font-bold">5.0 ★</div>
               </div>
-              <div className="pointer-events-none absolute -right-4 bottom-16 hidden md:block">
-                <div
-                  className="rounded-xl border border-border bg-background/90 backdrop-blur px-3 py-2 shadow-lg animate-float"
-                  style={{ animationDelay: "1.2s" }}
-                >
-                  <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Projects</div>
-                  <div className="font-serif text-2xl font-bold">120+</div>
-                </div>
+            </div>
+            <div className="pointer-events-none absolute -right-4 bottom-16 hidden md:block z-10">
+              <div
+                className="rounded-xl border border-border bg-background/90 backdrop-blur px-3 py-2 shadow-lg animate-float"
+                style={{ animationDelay: "1.2s" }}
+              >
+                <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Projects</div>
+                <div className="font-serif text-2xl font-bold">120+</div>
               </div>
-              <div className="pointer-events-none absolute right-4 top-4">
-                <div className="rounded-full bg-background/80 backdrop-blur px-3 py-1 text-xs font-medium border border-border">
-                  Available
-                </div>
+            </div>
+            <div className="pointer-events-none absolute right-4 top-4 z-10">
+              <div className="rounded-full bg-background/80 backdrop-blur px-3 py-1 text-xs font-medium border border-border">
+                Available
               </div>
             </div>
           </Reveal>

@@ -20,6 +20,12 @@ export async function signOutAction() {
 // =============================================
 // Projects
 // =============================================
+const IMAGE_POSITIONS = [
+  "top-left", "top", "top-right",
+  "left", "center", "right",
+  "bottom-left", "bottom", "bottom-right",
+] as const
+
 const projectSchema = z.object({
   slug: z.string().min(1).regex(/^[a-z0-9-]+$/, "Lower-case letters, numbers, and dashes only"),
   title: z.string().min(1),
@@ -27,6 +33,8 @@ const projectSchema = z.object({
   summary: z.string().optional().nullable(),
   body: z.string().optional().nullable(),
   cover_image: z.string().optional().nullable(),
+  cover_position: z.enum(IMAGE_POSITIONS).default("center"),
+  cover_fit: z.enum(["cover", "contain"]).default("cover"),
   gallery: z.array(z.string()).optional().nullable(),
   tech_stack: z.array(z.string()).optional().nullable(),
   category: z.string().optional().nullable(),
@@ -71,6 +79,8 @@ function parseProjectForm(formData: FormData) {
     summary: formData.get("summary") || null,
     body: formData.get("body") || null,
     cover_image: formData.get("cover_image") || null,
+    cover_position: (formData.get("cover_position") as string) || "center",
+    cover_fit: (formData.get("cover_fit") as string) || "cover",
     gallery: parseList(formData.get("gallery")),
     tech_stack: parseList(formData.get("tech_stack")),
     category: formData.get("category") || null,
@@ -269,6 +279,7 @@ const testimonialSchema = z.object({
   source: z.string().optional().nullable(),
   source_url: z.string().url().optional().or(z.literal("")).nullable(),
   proof_image: z.string().optional().nullable(),
+  proof_image_position: z.enum(IMAGE_POSITIONS).default("center"),
   featured: z.boolean().default(false),
   position: z.number().int().default(0),
   published: z.boolean().default(true),
@@ -286,6 +297,7 @@ function parseTestimonialForm(formData: FormData) {
     source: formData.get("source") || null,
     source_url: (formData.get("source_url") as string) || null,
     proof_image: formData.get("proof_image") || null,
+    proof_image_position: (formData.get("proof_image_position") as string) || "center",
     featured: formData.get("featured") === "on",
     position: Number(formData.get("position") || 0),
     published: formData.get("published") === "on",
@@ -433,6 +445,7 @@ export async function updateSiteSettingsAction(formData: FormData) {
     phone: (formData.get("phone") as string) || null,
     location: (formData.get("location") as string) || null,
     avatar_url: (formData.get("avatar_url") as string) || null,
+    avatar_position: (formData.get("avatar_position") as string) || "center",
     resume_url: (formData.get("resume_url") as string) || null,
     upwork_url: (formData.get("upwork_url") as string) || null,
     github_url: (formData.get("github_url") as string) || null,

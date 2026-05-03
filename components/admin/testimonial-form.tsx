@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Card, CardContent } from "@/components/ui/card"
 import { ImageInput } from "@/components/admin/image-input"
+import { ImagePositionInput } from "@/components/admin/image-position-input"
 import type { Testimonial } from "@/lib/supabase/types"
 
 function SubmitButton({ label }: { label: string }) {
@@ -72,13 +73,18 @@ export function TestimonialForm({
             <Label htmlFor="source_url">Source URL</Label>
             <Input id="source_url" name="source_url" type="url" defaultValue={testimonial?.source_url ?? ""} />
           </div>
-          <div className="md:col-span-2">
+          <div className="md:col-span-2 space-y-4">
             <ImageInput
               name="proof_image"
               label="Proof image (e.g. Upwork review screenshot)"
               aspect="wide"
               defaultValue={testimonial?.proof_image ?? ""}
               hint="Shown below the quote and on /testimonials. Linking to the original review builds trust."
+            />
+            <ImagePositionInput
+              name="proof_image_position"
+              defaultPosition={testimonial?.proof_image_position ?? "center"}
+              label="Proof image fit"
             />
           </div>
           <div className="space-y-1.5">

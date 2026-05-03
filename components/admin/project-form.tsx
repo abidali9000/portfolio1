@@ -10,6 +10,7 @@ import { Switch } from "@/components/ui/switch"
 import { Card, CardContent } from "@/components/ui/card"
 import { ImageInput } from "@/components/admin/image-input"
 import { GalleryInput } from "@/components/admin/gallery-input"
+import { ImagePositionInput } from "@/components/admin/image-position-input"
 import type { Project } from "@/lib/supabase/types"
 
 function SubmitButton({ label }: { label: string }) {
@@ -81,6 +82,14 @@ export function ProjectForm({
                 defaultValue={project?.cover_image ?? ""}
                 aspect="video"
                 hint="Used as the project's hero on its detail page and on the home/projects grid."
+              />
+              <ImagePositionInput
+                name="cover_position"
+                fitName="cover_fit"
+                defaultPosition={project?.cover_position ?? "center"}
+                defaultFit={project?.cover_fit ?? "cover"}
+                withFit
+                label="Cover image fit"
               />
               <GalleryInput defaultValue={project?.gallery ?? []} />
               <div className="space-y-1.5">

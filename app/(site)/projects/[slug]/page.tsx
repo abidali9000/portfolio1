@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Reveal } from "@/components/site/reveal"
 import { ProjectCard } from "@/components/site/project-card"
 import { getProjectBySlug, getProjects } from "@/lib/cms/queries"
+import { objectFitClass, objectPositionStyle } from "@/lib/cms/image"
 import type { Metadata } from "next"
 
 export const revalidate = 60
@@ -129,7 +130,8 @@ export default async function ProjectPage({
                   src={project.cover_image}
                   alt={project.title}
                   fill
-                  className="object-cover"
+                  className={objectFitClass(project.cover_fit)}
+                  style={{ objectPosition: objectPositionStyle(project.cover_position) }}
                   sizes="(max-width: 1280px) 100vw, 1280px"
                   priority
                 />

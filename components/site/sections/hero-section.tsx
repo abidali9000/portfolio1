@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Reveal } from "@/components/site/reveal"
 import { GridBg } from "@/components/site/grid-bg"
 import { WordRotate } from "@/components/site/word-rotate"
+import { objectPositionStyle } from "@/lib/cms/image"
 import type { SiteSettings } from "@/lib/supabase/types"
 
 export interface HeroData {
@@ -119,6 +120,7 @@ export function HeroSection({
                 alt={settings.brand_name}
                 fill
                 className="object-cover"
+                style={{ objectPosition: objectPositionStyle(settings.avatar_position) }}
                 priority
                 sizes="(max-width: 768px) 100vw, 480px"
                 unoptimized
@@ -127,13 +129,13 @@ export function HeroSection({
 
             {/* …but the floating badges are siblings, so they aren't clipped
                 by the overflow-hidden above. */}
-            <div className="pointer-events-none absolute -left-4 top-12 hidden md:block z-10">
+            <div className="pointer-events-none absolute left-3 top-12 hidden md:block z-10">
               <div className="rounded-xl border border-border bg-background/90 backdrop-blur px-3 py-2 shadow-lg animate-float">
                 <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Avg rating</div>
                 <div className="font-serif text-2xl font-bold">5.0 ★</div>
               </div>
             </div>
-            <div className="pointer-events-none absolute -right-4 bottom-16 hidden md:block z-10">
+            <div className="pointer-events-none absolute right-3 bottom-16 hidden md:block z-10">
               <div
                 className="rounded-xl border border-border bg-background/90 backdrop-blur px-3 py-2 shadow-lg animate-float"
                 style={{ animationDelay: "1.2s" }}
@@ -142,7 +144,7 @@ export function HeroSection({
                 <div className="font-serif text-2xl font-bold">120+</div>
               </div>
             </div>
-            <div className="pointer-events-none absolute right-4 top-4 z-10">
+            <div className="pointer-events-none absolute right-3 top-3 z-10">
               <div className="rounded-full bg-background/80 backdrop-blur px-3 py-1 text-xs font-medium border border-border">
                 Available
               </div>

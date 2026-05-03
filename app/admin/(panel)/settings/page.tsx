@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
 import { Button } from "@/components/ui/button"
 import { ImageInput } from "@/components/admin/image-input"
+import { ImagePositionInput } from "@/components/admin/image-position-input"
 import { getSiteSettings } from "@/lib/cms/queries"
 import { updateSiteSettingsAction } from "@/app/admin/(panel)/actions"
 
@@ -66,13 +67,18 @@ export default async function AdminSettingsPage() {
 
         <Card>
           <CardContent className="p-5 grid gap-4 md:grid-cols-2">
-            <div className="md:col-span-2">
+            <div className="md:col-span-2 space-y-4">
               <ImageInput
                 name="avatar_url"
                 label="Avatar / hero image"
                 aspect="portrait"
                 defaultValue={s.avatar_url ?? ""}
                 hint="Displayed in the hero on the home page and on /about."
+              />
+              <ImagePositionInput
+                name="avatar_position"
+                defaultPosition={s.avatar_position ?? "center"}
+                label="Hero image fit"
               />
             </div>
             <div className="space-y-1.5">

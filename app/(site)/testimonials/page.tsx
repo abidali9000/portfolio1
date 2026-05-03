@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Reveal } from "@/components/site/reveal"
 import { getTestimonials } from "@/lib/cms/queries"
+import { objectPositionStyle } from "@/lib/cms/image"
 import type { Metadata } from "next"
 
 export const revalidate = 60
@@ -63,6 +64,7 @@ export default async function TestimonialsPage() {
                       width={600}
                       height={120}
                       className="h-auto w-full"
+                      style={{ objectPosition: objectPositionStyle(t.proof_image_position) }}
                     />
                   </a>
                 )}

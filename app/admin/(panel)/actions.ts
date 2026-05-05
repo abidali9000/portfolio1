@@ -20,6 +20,12 @@ export async function signOutAction() {
 // =============================================
 // Projects
 // =============================================
+const IMAGE_POSITIONS = [
+  "top-left", "top", "top-right",
+  "left", "center", "right",
+  "bottom-left", "bottom", "bottom-right",
+] as const
+
 const projectSchema = z.object({
   slug: z.string().min(1).regex(/^[a-z0-9-]+$/, "Lower-case letters, numbers, and dashes only"),
   title: z.string().min(1),
@@ -27,6 +33,8 @@ const projectSchema = z.object({
   summary: z.string().optional().nullable(),
   body: z.string().optional().nullable(),
   cover_image: z.string().optional().nullable(),
+  cover_position: z.enum(IMAGE_POSITIONS).default("center"),
+  cover_fit: z.enum(["cover", "contain"]).default("cover"),
   gallery: z.array(z.string()).optional().nullable(),
   tech_stack: z.array(z.string()).optional().nullable(),
   category: z.string().optional().nullable(),
@@ -71,6 +79,8 @@ function parseProjectForm(formData: FormData) {
     summary: formData.get("summary") || null,
     body: formData.get("body") || null,
     cover_image: formData.get("cover_image") || null,
+    cover_position: (formData.get("cover_position") as string) || "center",
+    cover_fit: (formData.get("cover_fit") as string) || "cover",
     gallery: parseList(formData.get("gallery")),
     tech_stack: parseList(formData.get("tech_stack")),
     category: formData.get("category") || null,
@@ -116,6 +126,59 @@ export async function deleteProjectAction(id: string) {
   const { error } = await supabase.from("projects").delete().eq("id", id)
   if (error) throw new Error(error.message)
   revalidatePath("/projects")
+  revalidatePath("/")
+}
+
+export async function toggleProjectFlagAction(
+  id: string,
+  flag: "published" | "featured" | "case_study",
+  value: boolean,
+) {
+  await requireAdmin()
+  const supabase = await createServerSupabase()
+  const { error } = await supabase.from("projects").update({ [flag]: value }).eq("id", id)
+  if (error) throw new Error(error.message)
+  revalidatePath("/projects")
+  revalidatePath("/")
+  revalidatePath("/case-studies")
+  revalidatePath("/admin/projects")
+}
+
+export async function duplicateProjectAction(id: string) {
+  await requireAdmin()
+  const supabase = await createServerSupabase()
+  const { data: src, error: e1 } = await supabase
+    .from("projects")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle()
+  if (e1) throw new Error(e1.message)
+  if (!src) throw new Error("Project not found")
+
+  // Strip server-managed fields and force a unique slug.
+  const stripped = { ...src } as Record<string, unknown>
+  delete stripped.id
+  delete stripped.created_at
+  delete stripped.updated_at
+  stripped.slug = `${(src as { slug: string }).slug}-copy-${Date.now().toString(36).slice(-4)}`
+  stripped.title = `${(src as { title: string }).title} (copy)`
+  stripped.featured = false
+  stripped.published = false
+  stripped.position = ((src as { position: number }).position ?? 0) + 1
+
+  const { error: e2 } = await supabase.from("projects").insert(stripped)
+  if (e2) throw new Error(e2.message)
+  revalidatePath("/admin/projects")
+}
+
+export async function reorderProjectsAction(orderedIds: string[]) {
+  await requireAdmin()
+  const supabase = await createServerSupabase()
+  await Promise.all(
+    orderedIds.map((id, i) => supabase.from("projects").update({ position: i }).eq("id", id)),
+  )
+  revalidatePath("/projects")
+  revalidatePath("/admin/projects")
   revalidatePath("/")
 }
 
@@ -182,6 +245,26 @@ export async function deleteServiceAction(id: string) {
   revalidatePath("/")
 }
 
+export async function toggleServicePublishedAction(id: string, published: boolean) {
+  await requireAdmin()
+  const supabase = await createServerSupabase()
+  await supabase.from("services").update({ published }).eq("id", id)
+  revalidatePath("/services")
+  revalidatePath("/admin/services")
+  revalidatePath("/")
+}
+
+export async function reorderServicesAction(orderedIds: string[]) {
+  await requireAdmin()
+  const supabase = await createServerSupabase()
+  await Promise.all(
+    orderedIds.map((id, i) => supabase.from("services").update({ position: i }).eq("id", id)),
+  )
+  revalidatePath("/services")
+  revalidatePath("/admin/services")
+  revalidatePath("/")
+}
+
 // =============================================
 // Testimonials
 // =============================================
@@ -196,6 +279,7 @@ const testimonialSchema = z.object({
   source: z.string().optional().nullable(),
   source_url: z.string().url().optional().or(z.literal("")).nullable(),
   proof_image: z.string().optional().nullable(),
+  proof_image_position: z.enum(IMAGE_POSITIONS).default("center"),
   featured: z.boolean().default(false),
   position: z.number().int().default(0),
   published: z.boolean().default(true),
@@ -213,6 +297,7 @@ function parseTestimonialForm(formData: FormData) {
     source: formData.get("source") || null,
     source_url: (formData.get("source_url") as string) || null,
     proof_image: formData.get("proof_image") || null,
+    proof_image_position: (formData.get("proof_image_position") as string) || "center",
     featured: formData.get("featured") === "on",
     position: Number(formData.get("position") || 0),
     published: formData.get("published") === "on",
@@ -247,6 +332,30 @@ export async function deleteTestimonialAction(id: string) {
   const { error } = await supabase.from("testimonials").delete().eq("id", id)
   if (error) throw new Error(error.message)
   revalidatePath("/testimonials")
+  revalidatePath("/")
+}
+
+export async function toggleTestimonialFlagAction(
+  id: string,
+  flag: "published" | "featured",
+  value: boolean,
+) {
+  await requireAdmin()
+  const supabase = await createServerSupabase()
+  await supabase.from("testimonials").update({ [flag]: value }).eq("id", id)
+  revalidatePath("/testimonials")
+  revalidatePath("/admin/testimonials")
+  revalidatePath("/")
+}
+
+export async function reorderTestimonialsAction(orderedIds: string[]) {
+  await requireAdmin()
+  const supabase = await createServerSupabase()
+  await Promise.all(
+    orderedIds.map((id, i) => supabase.from("testimonials").update({ position: i }).eq("id", id)),
+  )
+  revalidatePath("/testimonials")
+  revalidatePath("/admin/testimonials")
   revalidatePath("/")
 }
 
@@ -336,6 +445,7 @@ export async function updateSiteSettingsAction(formData: FormData) {
     phone: (formData.get("phone") as string) || null,
     location: (formData.get("location") as string) || null,
     avatar_url: (formData.get("avatar_url") as string) || null,
+    avatar_position: (formData.get("avatar_position") as string) || "center",
     resume_url: (formData.get("resume_url") as string) || null,
     upwork_url: (formData.get("upwork_url") as string) || null,
     github_url: (formData.get("github_url") as string) || null,
@@ -378,33 +488,74 @@ export async function deleteLeadAction(id: string) {
 // =============================================
 // Media (uploads via service-role client)
 // =============================================
-export async function uploadMediaAction(formData: FormData) {
-  await requireAdmin()
-  const file = formData.get("file") as File
-  if (!file) throw new Error("No file provided")
-  const service = createServiceSupabase()
-  if (!service) throw new Error("SUPABASE_SERVICE_ROLE_KEY not set")
 
-  const ext = file.name.split(".").pop() ?? "bin"
-  const path = `media/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`
-  const arrayBuffer = await file.arrayBuffer()
+/**
+ * Upload a single file to Supabase Storage and record the metadata in
+ * `public.media`. Returns the public URL so callers can use it inline (e.g.
+ * the inline ImageInput on a project form).
+ */
+export async function uploadMediaAction(
+  formData: FormData,
+): Promise<{ url: string; path: string; id: string; alt: string | null }> {
+  await requireAdmin()
+  const file = formData.get("file")
+  if (!(file instanceof File) || file.size === 0) {
+    throw new Error("No file provided")
+  }
+  // Hard cap matches next.config bodySizeLimit; surface a clean error first.
+  if (file.size > 10 * 1024 * 1024) {
+    throw new Error("File is too large (max 10 MB).")
+  }
+  const service = createServiceSupabase()
+  if (!service) {
+    throw new Error("SUPABASE_SERVICE_ROLE_KEY isn't set in Vercel — add it and redeploy.")
+  }
+
+  const ext = (file.name.split(".").pop() ?? "bin").toLowerCase().replace(/[^a-z0-9]/g, "") || "bin"
+  const safeBase = file.name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 40) || "file"
+  const path = `media/${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${safeBase}.${ext}`
+
   const { error: uploadErr } = await service.storage
     .from("public-media")
-    .upload(path, arrayBuffer, { contentType: file.type, upsert: false })
-  if (uploadErr) throw new Error(uploadErr.message)
+    .upload(path, file, {
+      contentType: file.type || "application/octet-stream",
+      upsert: false,
+      cacheControl: "31536000",
+    })
+  if (uploadErr) {
+    throw new Error(`Storage upload failed: ${uploadErr.message}`)
+  }
 
   const { data: publicUrl } = service.storage.from("public-media").getPublicUrl(path)
+  const url = publicUrl.publicUrl
+  const alt = (formData.get("alt") as string) || null
 
-  const supabase = await createServerSupabase()
-  await supabase.from("media").insert({
-    path,
-    url: publicUrl.publicUrl,
-    filename: file.name,
-    mime_type: file.type,
-    size_bytes: file.size,
-    alt: (formData.get("alt") as string) || null,
-  })
+  // Record in the media table using the service-role client to bypass RLS
+  // (callers who hit the size limit can still hit RLS edge-cases otherwise).
+  const { data: row, error: insertErr } = await service
+    .from("media")
+    .insert({
+      path,
+      url,
+      filename: file.name,
+      mime_type: file.type || null,
+      size_bytes: file.size,
+      alt,
+    })
+    .select("id")
+    .single()
+  if (insertErr) {
+    // Best-effort cleanup so we don't leave orphan storage objects.
+    await service.storage.from("public-media").remove([path]).catch(() => undefined)
+    throw new Error(`Failed to record media: ${insertErr.message}`)
+  }
+
   revalidatePath("/admin/media")
+  return { url, path, id: row.id as string, alt }
 }
 
 export async function deleteMediaAction(id: string, path: string) {
@@ -416,4 +567,19 @@ export async function deleteMediaAction(id: string, path: string) {
   const supabase = await createServerSupabase()
   await supabase.from("media").delete().eq("id", id)
   revalidatePath("/admin/media")
+}
+
+/**
+ * List media for picker UIs. Returns thumbnails + URLs sorted by recency.
+ */
+export async function listMediaAction(): Promise<Array<{ id: string; url: string; alt: string | null; filename: string; mime_type: string | null }>> {
+  await requireAdmin()
+  const supabase = await createServerSupabase()
+  const { data, error } = await supabase
+    .from("media")
+    .select("id, url, alt, filename, mime_type")
+    .order("created_at", { ascending: false })
+    .limit(200)
+  if (error) throw new Error(error.message)
+  return (data ?? []) as Array<{ id: string; url: string; alt: string | null; filename: string; mime_type: string | null }>
 }

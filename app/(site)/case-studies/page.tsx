@@ -4,6 +4,7 @@ import { ArrowUpRight } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Reveal } from "@/components/site/reveal"
 import { getProjects } from "@/lib/cms/queries"
+import { objectFitClass, objectPositionStyle } from "@/lib/cms/image"
 import type { Metadata } from "next"
 
 export const revalidate = 60
@@ -58,7 +59,8 @@ export default async function CaseStudiesPage() {
                         alt={p.title}
                         fill
                         sizes="(max-width: 768px) 100vw, 50vw"
-                        className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+                        className={`transition-transform duration-700 group-hover:scale-[1.04] ${objectFitClass(p.cover_fit)}`}
+                        style={{ objectPosition: objectPositionStyle(p.cover_position) }}
                       />
                     </div>
                   )}

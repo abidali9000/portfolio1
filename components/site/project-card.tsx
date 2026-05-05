@@ -2,6 +2,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { ArrowUpRight } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { objectFitClass, objectPositionStyle } from "@/lib/cms/image"
 import type { Project } from "@/lib/supabase/types"
 
 export function ProjectCard({
@@ -28,7 +29,11 @@ export function ProjectCard({
             alt={project.title}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-            className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+            className={cn(
+              "transition-transform duration-700 group-hover:scale-[1.04]",
+              objectFitClass(project.cover_fit),
+            )}
+            style={{ objectPosition: objectPositionStyle(project.cover_position) }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background/95 via-background/0 to-background/0" />
           {project.case_study && (

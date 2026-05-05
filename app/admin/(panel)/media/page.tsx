@@ -3,6 +3,7 @@ import { PageHeader } from "@/components/admin/page-header"
 import { Card, CardContent } from "@/components/ui/card"
 import { DeleteButton } from "@/components/admin/delete-button"
 import { MediaUploader } from "@/components/admin/media-uploader"
+import { CopyableUrl } from "@/components/admin/copyable-url"
 import { createServerSupabase } from "@/lib/supabase/server"
 import { isSupabaseConfigured } from "@/lib/env"
 import { deleteMediaAction } from "@/app/admin/(panel)/actions"
@@ -42,12 +43,7 @@ export default async function AdminMediaPage() {
             </div>
             <CardContent className="space-y-2 p-3">
               <div className="text-xs font-medium truncate">{m.filename}</div>
-              <input
-                readOnly
-                value={m.url}
-                className="w-full rounded border border-border bg-muted/50 px-2 py-1 text-[10px] font-mono"
-                onFocus={e => e.currentTarget.select()}
-              />
+              <CopyableUrl url={m.url} />
               <div className="flex justify-end">
                 <DeleteButton size="icon" label="" action={deleteMediaAction.bind(null, m.id, m.path)} />
               </div>

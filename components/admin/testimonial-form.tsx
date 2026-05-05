@@ -7,6 +7,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Card, CardContent } from "@/components/ui/card"
+import { ImageInput } from "@/components/admin/image-input"
+import { ImagePositionInput } from "@/components/admin/image-position-input"
 import type { Testimonial } from "@/lib/supabase/types"
 
 function SubmitButton({ label }: { label: string }) {
@@ -39,10 +41,13 @@ export function TestimonialForm({
             <Label htmlFor="client_company">Company</Label>
             <Input id="client_company" name="client_company" defaultValue={testimonial?.client_company ?? ""} />
           </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="client_avatar">Avatar URL</Label>
-            <Input id="client_avatar" name="client_avatar" defaultValue={testimonial?.client_avatar ?? ""} />
-          </div>
+          <ImageInput
+            name="client_avatar"
+            label="Client avatar"
+            aspect="square"
+            defaultValue={testimonial?.client_avatar ?? ""}
+            hint="Optional — shown next to the quote."
+          />
           <div className="space-y-1.5 md:col-span-2">
             <Label htmlFor="quote">Quote *</Label>
             <Textarea id="quote" name="quote" rows={4} defaultValue={testimonial?.quote ?? ""} required />
@@ -68,9 +73,19 @@ export function TestimonialForm({
             <Label htmlFor="source_url">Source URL</Label>
             <Input id="source_url" name="source_url" type="url" defaultValue={testimonial?.source_url ?? ""} />
           </div>
-          <div className="space-y-1.5 md:col-span-2">
-            <Label htmlFor="proof_image">Proof image URL (e.g. Upwork screenshot)</Label>
-            <Input id="proof_image" name="proof_image" defaultValue={testimonial?.proof_image ?? ""} />
+          <div className="md:col-span-2 space-y-4">
+            <ImageInput
+              name="proof_image"
+              label="Proof image (e.g. Upwork review screenshot)"
+              aspect="wide"
+              defaultValue={testimonial?.proof_image ?? ""}
+              hint="Shown below the quote and on /testimonials. Linking to the original review builds trust."
+            />
+            <ImagePositionInput
+              name="proof_image_position"
+              defaultPosition={testimonial?.proof_image_position ?? "center"}
+              label="Proof image fit"
+            />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="position">Position</Label>

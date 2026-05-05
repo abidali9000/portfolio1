@@ -15,6 +15,13 @@ export type SectionType =
   | "rich_text"
   | "faq"
 
+export type ImagePosition =
+  | "top-left" | "top" | "top-right"
+  | "left" | "center" | "right"
+  | "bottom-left" | "bottom" | "bottom-right"
+
+export type ImageFit = "cover" | "contain"
+
 export interface Project {
   id: string
   slug: string
@@ -23,6 +30,8 @@ export interface Project {
   summary: string | null
   body: string | null
   cover_image: string | null
+  cover_position: ImagePosition
+  cover_fit: ImageFit
   gallery: string[] | null
   tech_stack: string[] | null
   category: string | null
@@ -68,6 +77,7 @@ export interface Testimonial {
   source: string | null
   source_url: string | null
   proof_image: string | null
+  proof_image_position: ImagePosition
   featured: boolean
   position: number
   published: boolean
@@ -103,6 +113,7 @@ export interface SiteSettings {
   available_for_work: boolean
   hourly_rate: string | null
   primary_color: string | null
+  avatar_position: ImagePosition
   updated_at: string
 }
 

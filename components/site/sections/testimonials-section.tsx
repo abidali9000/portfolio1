@@ -1,6 +1,7 @@
 import Image from "next/image"
 import { Star } from "lucide-react"
 import { Reveal } from "@/components/site/reveal"
+import { objectPositionStyle } from "@/lib/cms/image"
 import type { Testimonial } from "@/lib/supabase/types"
 
 export interface TestimonialsData {
@@ -88,6 +89,7 @@ export function TestimonialsSection({
                       width={600}
                       height={120}
                       className="h-auto w-full"
+                      style={{ objectPosition: objectPositionStyle(t.proof_image_position) }}
                     />
                   </a>
                 )}

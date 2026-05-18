@@ -1,6 +1,7 @@
 import type React from "react"
 import type { Metadata } from "next"
 import { Playfair_Display, Source_Sans_3 as Source_Sans_Pro } from "next/font/google"
+import Script from "next/script"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
 import { Toaster as SonnerToaster } from "@/components/ui/sonner"
@@ -58,6 +59,11 @@ export default function RootLayout({
           <Toaster />
           <SonnerToaster />
         </ThemeProvider>
+        <Script
+          src="https://webask.vercel.app/widget.js"
+          data-site-key="sk_p6QX2INdJTb9eWpI"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   )
